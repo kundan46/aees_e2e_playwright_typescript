@@ -1,0 +1,14 @@
+{
+  "name": "aees-playwright-automation",
+  "version": "1.0.0",
+  "description": "AI-generated automated testing for AEES",
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "@types/node": "^25.6.0",
+    "typescript": "^5.0.0"
+  },
+  "scripts": {
+    "test": "npx playwright test",
+    "show-report": "npx playwright show-report"
+  }
+}
