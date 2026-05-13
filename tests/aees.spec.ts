@@ -12,7 +12,7 @@ test.describe('AEES Online Registration System Tests', () => {
         homePage = new HomePage(page);
         loginPage = new LoginPage(page);
         registrationPage = new RegistrationPage(page);
-        await homePage.navigateTo('https://aees.onlineregistrationforms.com/#/home');
+        await homePage.navigateTo('https://csirso.onlineregistrationforms.com/#/home');
     });
 
     test('Verification: Home Page UI Scan', async ({ page }) => {

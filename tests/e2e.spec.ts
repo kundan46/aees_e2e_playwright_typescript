@@ -5,11 +5,27 @@ test('AEES Full E2E Application Submission', async ({ page }) => {
     test.setTimeout(120000);
     // 1. Initial Navigation & Header Login
     await page.goto('https://aees.onlineregistrationforms.com/#/home');
-    await page.getByRole('button', { name: ' Login' }).click();
+    var Email = "bug87@gmail.com";
+    var Password = "Abcd@1234";
+    var mobile = "8592970873";
+    //  Navigate to Registration page
+    await page.locator('button:has-text("New Candidate Registration")').click();
+    await page.locator('input.form-control.ng-untouched.ng-pristine.ng-invalid').fill(Email);
+    await page.locator('[name="confirmEmail"]').fill(Email);
+    await page.locator("//div[4]//div[1]//input[1]").fill(Password);
+    await page.locator("//div[4]//div[2]//input[1]").fill(Password);
+    await page.getByRole('textbox', { name: 'Mobile Number*' }).fill(mobile);
+    await page.locator("//div[7]//div[2]//input[1]").fill(mobile);
+    await page.locator('button:has-text("Register")').click();
+    await page.waitForTimeout(5000);
+
+    //navigate Login page
+    //await page.goto('https://aees.onlineregistrationforms.com/#/login');
+    await page.getByRole('button', { name: ' Login' }).click();
 
     // 2. Login Logic with Error Handling
-    await page.getByRole('textbox', { name: 'Email/Phone Number/' }).fill('bug83@gmail.com');
-    await page.getByRole('textbox', { name: 'Password*' }).fill('Abcd@1234');
+    await page.getByRole('textbox', { name: 'Email/Phone Number/' }).fill(Email);
+    await page.getByRole('textbox', { name: 'Password*' }).fill(Password);
     await page.getByRole('button', { name: 'Login', exact: true }).click();
 
     // Ensure login was successful

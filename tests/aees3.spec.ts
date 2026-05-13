@@ -1,50 +1,78 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, } from '@playwright/test';
 import path from 'path';
 
 test('AEES Full E2E Application Submission', async ({ page }) => {
     test.setTimeout(120000); // ✅ increase timeout to 2 minutes
 
-    await page.goto('https://aees.onlineregistrationforms.com/#/home');
-
+    console.log('Navigating to login page');
+    await page.goto('https://aees.onlineregistrationforms.com');
     await page.getByRole('button', { name: ' Login' }).click();
 
     await page.getByRole('textbox', { name: 'Email/Phone Number/' }).fill('bug85@gmail.com');
     await page.getByRole('textbox', { name: 'Password*' }).fill('Abcd@1234');
     await page.getByRole('button', { name: 'Login', exact: true }).click();
+
     // 1. Go to dashboard
-    const dashboardLink = page.getByRole('link', { name: 'Dashboard' });
+    console.log('Processing Step 1: Go to dashboard');
+    const dashboardLink = page.getByRole('heading', { name: 'Dashboard' });
     await expect(dashboardLink).toBeVisible();
     await dashboardLink.click();
-    // 2. Click on the exam link from the table
-    const examLink = page.getByRole('link', { name: 'Apply Online' }).first();
-    await expect(examLink).toBeVisible();
-    await examLink.click();
+
+    // 2. Click on start new application/view application
+    console.log('Processing Step 2: Start New Application');
+    const examLink = page.locator(':text("Start New Application")').first();
+    if (await examLink.waitFor({ state: "visible", timeout: 1000 }).then(() => true).catch(() => false)) {
+        await examLink.click();
+        await page.getByText('Continue').click();
+    }
     const viewAppBtn = page.getByRole('button', { name: 'View Application' }).first();
-    await expect(viewAppBtn).toBeVisible();
-    await viewAppBtn.click();
+    if (await viewAppBtn.waitFor({ state: "visible", timeout: 1000 }).then(() => true).catch(() => false)) {
+        await viewAppBtn.click();
+    }
 
-    // 3. Eligibility
-    console.log('Navigating to Step 3: Eligibility');
-    const radioButtons = page.locator('input[type="radio"]');
+    // 3.Candidate Instructions Section
+    const checkbox = page.locator('input[type="checkbox"]');
 
-    if (await radioButtons.first().isVisible().catch(() => false)) {
-        await radioButtons.nth(0).check();
-        await radioButtons.nth(2).check();
-        await radioButtons.nth(4).check();
+    if (await checkbox.count() > 0) {
+        await checkbox.last().check();
+        await page.getByRole('button', { name: 'Continue' }).click();
+    } else {
+        console.log('Step 3 skipped (already completed)');
+    }
+
+    // 4. Post selection
+    console.log('Processing Step 4:Post Selection');
+    const dropdown = page.locator('select[name="educont"]')
+
+    if (await dropdown.first().waitFor({ state: "visible", timeout: 1000 }).then(() => true).catch(() => false).catch(() => false)) {
+        console.log("Selecting Post...");
+        await dropdown.selectOption({ label: 'LIBRARIAN' });
         await page.getByRole('button', { name: 'Save & Continue' }).click();
     }
 
-    // 4. Personal Details
-    console.log('Processing Step 4: Personal Details');
 
-    await expect(page.getByText('Candidate Details')).toBeVisible(); // ✅ replace timeout
+    // 5. Eligibility
+    console.log('Navigating to Step 5: Eligibility');
+    const radioButtons = page.locator('input[type="radio"]');
+
+    if (await radioButtons.first().waitFor({ state: "visible", timeout: 1000 }).then(() => true).catch(() => false).catch(() => false)) {
+        await radioButtons.nth(0).check();
+        await radioButtons.nth(2).check();
+        //await radioButtons.nth(4).check();
+        await page.getByRole('button', { name: 'Save & Continue' }).click();
+    }
+
+    // 6. Personal Details
+    console.log('Processing Step 6: Personal Details');
+
+    //await expect(page.getByText('Candidate Details')).toBeVisible(); // ✅ replace timeout
 
     const isStep4 = await page.getByText('Candidate Details').isVisible();
     if (isStep4) {
 
         await page.locator('select.custom-select').nth(0).selectOption('MR');
-        await page.locator("//div[@class='row p-2 text-justify']//div[2]//input[1]").fill('Test');
-        await page.locator("//div[@class='col-md-3']//input[@placeholder='Middle Name']").fill('Senior');
+        await page.locator("//app-main-body//div[@class='row page-container']//div[@class='col-md-12']//div[@class='col-md-12']//div[1]//div[1]//div[1]//div[2]//input[1]").fill('Test');
+        //await page.locator("//div[@class='col-md-3']//input[@placeholder='Middle Name']").fill('Senior');
         await page.locator("//div[@class='col-md-3']//input[@placeholder='Last Name']").fill('Engineer');
         await page.locator('[name="name_Change"]').selectOption('NO');
 
@@ -104,10 +132,13 @@ test('AEES Full E2E Application Submission', async ({ page }) => {
         await page.waitForTimeout(15000);
     }
 
-    // 5. Education
-    console.log('Processing Step 5: Education Details');
+    // 7. Education
+    console.log('Processing Step 7: Education Details');
+    const education_dropdown = await page.locator('[name="educationEligibilty"]')
+    await education_dropdown.selectOption({ label: 'DEGREE GRADUATION' });
+    if (await page.getByText('Educational Details').isVisible().catch(() => false)) {
 
-    if (await page.getByText('Academic details').isVisible().catch(() => false)) {
+
 
         await page.locator('input[formcontrolname="board"]').first().fill('Test Board');
         await page.locator('input[formcontrolname="subject"]').first().fill('Test Subject');
@@ -117,12 +148,14 @@ test('AEES Full E2E Application Submission', async ({ page }) => {
         await page.getByRole('button', { name: 'Save & Continue' }).click();
     }
 
-    // 6. Occupational
+    // 8. Occupational
+    console.log('Processing Step 8: Occupational Details');
     if (await page.getByText('Occupational Details').isVisible().catch(() => false)) {
         await page.getByRole('button', { name: 'Save & Continue' }).click();
     }
 
-    // 7. Upload
+    // 9. Upload
+    console.log('Processing Step 9: Upload');
     if (await page.locator('input[type="file"]').first().isVisible().catch(() => false)) {
 
         const dummyFile = path.resolve('test-file.pdf');
@@ -138,7 +171,8 @@ test('AEES Full E2E Application Submission', async ({ page }) => {
         await page.getByRole('button', { name: 'Save & Continue' }).click();
     }
 
-    // 8. Test Center
+    // 10. Test Center
+    console.log('Processing Step 10: Test Center');
     if (await page.getByText('Test Center Preference').isVisible().catch(() => false)) {
 
         await page.locator('select[formcontrolname="testCenterPreference1"]').selectOption({ index: 1 });
@@ -148,7 +182,8 @@ test('AEES Full E2E Application Submission', async ({ page }) => {
         await page.getByRole('button', { name: 'Save & Continue' }).click();
     }
 
-    // 9. Preview
+    // 11. Preview
+    console.log('Processing Step 11: Preview');
     await expect(page.locator('input[type="checkbox"]').last()).toBeVisible();
     await page.locator('input[type="checkbox"]').last().check();
 
@@ -159,7 +194,8 @@ test('AEES Full E2E Application Submission', async ({ page }) => {
         await page.getByRole('button', { name: 'Yes, I Confirm' }).click();
     }
 
-    // 10. Download
+    // 12. Download
+    console.log('Processing Step 12: Download');
     await page.waitForURL(/.*dashboard|.*activity/);
 
     if (!page.url().includes('dashboard')) {

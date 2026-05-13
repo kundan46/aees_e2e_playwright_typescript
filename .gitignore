@@ -4,3 +4,12 @@ playwright-report/
 blob-report/
 playwright/.cache/
 .env
+
+# Playwright
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+*.png
+claude_desktop_config.json
+

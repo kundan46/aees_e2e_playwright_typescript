@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
+
   testDir: './tests',
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
@@ -12,7 +13,9 @@ export default defineConfig({
     toHaveScreenshot: { maxDiffPixels: 100 },
   },
   use: {
-    baseURL: 'https://aees.onlineregistrationforms.com',
+    headless: true,
+    launchOptions: { args: ['--start-minimized'] },
+    baseURL: 'https://testautomationpractice.blogspot.com',
     trace: 'on-first-retry',
     screenshot: 'on',
     video: 'on-first-retry',

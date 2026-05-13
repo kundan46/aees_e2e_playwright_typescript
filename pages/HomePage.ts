@@ -2,6 +2,9 @@ import { Page, Locator } from '@playwright/test';
 import { BasePage } from './BasePage';
 
 export class HomePage extends BasePage {
+    static clickRegister() {
+        throw new Error('Method not implemented.');
+    }
     readonly loginButton: Locator;
     readonly registerButton: Locator;
 
